@@ -38,16 +38,16 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
   diceElements[0].style.display = 'block';
   diceElements[1].style.display = 'block';
 
-  if ((dice1 + dice2) !== RESET_VALUE) {
+  if (dice1 === dice2 || dice1 === RESET_VALUE || dice2 === RESET_VALUE) {
+    changePlayer();
+    
+  } else {
     current += (dice1 + dice2);
     document.getElementById('current-'+activePlayer).textContent = current;
 
     if (scores[activePlayer] + current >= 100) {
       alert(`Player ${activePlayer + 1} won!!!`);
     }
-    
-  } else {
-    changePlayer();
   }
 });
 
