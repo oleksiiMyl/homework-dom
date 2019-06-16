@@ -14,9 +14,14 @@ const RESET_VALUE = 2;
 let scores = [0, 0];
 let activePlayer = 0;
 let current = 0;
+let finishScore = 100;
 const diceElements = document.querySelectorAll('.dice');
+const scoreFieldWrap = document.querySelector('.field-wrap');
+const scoreField = document.querySelector('.score-field');
+const errorText = document.querySelector('.error-text');
 
 const initGame = () => {
+  scoreFieldWrap.style.display = "block";
   document.querySelector('#current-0').textContent = 0;
   document.querySelector('#current-1').textContent = 0;
   document.querySelector('#score-0').textContent = 0;
@@ -25,6 +30,7 @@ const initGame = () => {
   diceElements[1].style.display = 'none';
   current = 0;
   scores = [0, 0];
+  finishScore = 100;
 };
 
 initGame();
@@ -45,7 +51,7 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
     current += (dice1 + dice2);
     document.getElementById('current-'+activePlayer).textContent = current;
 
-    if (scores[activePlayer] + current >= 100) {
+    if (scores[activePlayer] + current >= finishScore) {
       alert(`Player ${activePlayer + 1} won!!!`);
     }
   }
@@ -67,7 +73,25 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
   changePlayer();
 });
 
-
 document.querySelector('.btn-new').addEventListener('click', function() {
   initGame();
+});
+
+document.querySelector('.btn-apply').addEventListener('click', function () {
+  let currentValue = scoreField.value;
+
+  if (!isNaN(currentValue)) {
+    errorText.style.display = 'none';
+    scoreField.classList.remove('invalid');
+
+    if (Number(currentValue) > 0) {
+      finishScore = Number(currentValue);
+    }
+    scoreField.value = '';
+    scoreFieldWrap.style.display = "none";
+
+  } else {
+    errorText.style.display = 'block';
+    scoreField.classList.add('invalid');
+  }
 });
