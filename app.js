@@ -9,35 +9,41 @@ GAME RULES:
 
 */
 
-const RESET_VALUE = 1;
+const RESET_VALUE = 2;
 
 let scores = [0, 0];
 let activePlayer = 0;
 let current = 0;
-const diceElement = document.querySelector('.dice');
+const diceElements = document.querySelectorAll('.dice');
 
 const initGame = () => {
   document.querySelector('#current-0').textContent = 0;
   document.querySelector('#current-1').textContent = 0;
   document.querySelector('#score-0').textContent = 0;
   document.querySelector('#score-1').textContent = 0;
-  diceElement.style.display = 'none';
-}
+  diceElements[0].style.display = 'none';
+  diceElements[1].style.display = 'none';
+  current = 0;
+  scores = [0, 0];
+};
 
 initGame();
 
 document.querySelector('.btn-roll').addEventListener('click', function() {
-  let dice = Math.floor(Math.random() * 6) + 1;
+  let dice1 = Math.floor(Math.random() * 6) + 1;
+  let dice2 = Math.floor(Math.random() * 6) + 1;
 
-  diceElement.src = `dice-${dice}.png`;
-  diceElement.style.display = 'block';
+  diceElements[0].src = `dice-${dice1}.png`;
+  diceElements[1].src = `dice-${dice2}.png`;
+  diceElements[0].style.display = 'block';
+  diceElements[1].style.display = 'block';
 
-  if (dice !== RESET_VALUE) {
-    current += dice;
+  if ((dice1 + dice2) !== RESET_VALUE) {
+    current += (dice1 + dice2);
     document.getElementById('current-'+activePlayer).textContent = current;
 
-    if (scores[activePlayer] + current >= 20) {
-      alert(`Player ${activePlayer} won!!!`);
+    if (scores[activePlayer] + current >= 100) {
+      alert(`Player ${activePlayer + 1} won!!!`);
     }
     
   } else {
@@ -50,9 +56,10 @@ const changePlayer = () => {
   document.getElementById('current-'+activePlayer).textContent = 0;
   document.querySelector(`.player-${activePlayer}-panel`).classList.toggle('active');
   activePlayer = +!activePlayer;
-  diceElement.style.display = 'none';
+  diceElements[0].style.display = 'none';
+  diceElements[1].style.display = 'none';
   document.querySelector(`.player-${activePlayer}-panel`).classList.toggle('active');
-}
+};
 
 document.querySelector('.btn-hold').addEventListener('click', function() {
   scores[activePlayer] += current;
