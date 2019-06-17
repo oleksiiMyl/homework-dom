@@ -11,17 +11,53 @@ GAME RULES:
 
 const RESET_VALUE = 2;
 
-let scores = [0, 0];
 let activePlayer = 0;
 let current = 0;
 let finishScore = 100;
+let playerNumber = 1;
 const diceElements = document.querySelectorAll('.dice');
 const scoreFieldWrap = document.querySelector('.field-wrap');
 const scoreField = document.querySelector('.score-field');
 const errorText = document.querySelector('.error-text');
 
+const getPlayerName = (title) => {
+  const name = prompt(title, '');
+
+  if (name === null || name === '') {
+    return `Player${playerNumber++}`;
+  }
+  return name;
+};
+
+const playerName1 = getPlayerName('Введите имя первого игрока');
+const playerName2 = getPlayerName('Введите имя второго игрока');
+
+function Gamer(name, score) {
+  this.name = name;
+  this.score = score;
+}
+
+Gamer.prototype.getScore = function () {
+  return this.score;
+};
+
+Gamer.prototype.setScore = function (score) {
+  this.score = score;
+};
+
+Gamer.prototype.resetScore = function () {
+  this.score = 0;
+};
+
+const player1 = new Gamer(playerName1, 0);
+const player2 = new Gamer(playerName2, 0);
+
+const players = [player1, player2];
+
 const initGame = () => {
   scoreFieldWrap.style.display = "block";
+  document.querySelector('#name-0').textContent = player1.name;
+  document.querySelector('#name-1').textContent = player2.name;
   document.querySelector('#current-0').textContent = 0;
   document.querySelector('#current-1').textContent = 0;
   document.querySelector('#score-0').textContent = 0;
@@ -29,7 +65,8 @@ const initGame = () => {
   diceElements[0].style.display = 'none';
   diceElements[1].style.display = 'none';
   current = 0;
-  scores = [0, 0];
+  player1.resetScore();
+  player2.resetScore();
   finishScore = 100;
 };
 
@@ -51,8 +88,8 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
     current += (dice1 + dice2);
     document.getElementById('current-'+activePlayer).textContent = current;
 
-    if (scores[activePlayer] + current >= finishScore) {
-      alert(`Player ${activePlayer + 1} won!!!`);
+    if (players[activePlayer].getScore() + current >= finishScore) {
+      alert(`Player ${players[activePlayer].name} won!!!`);
     }
   }
 });
@@ -68,8 +105,8 @@ const changePlayer = () => {
 };
 
 document.querySelector('.btn-hold').addEventListener('click', function() {
-  scores[activePlayer] += current;
-  document.querySelector(`#score-${activePlayer}`).textContent = scores[activePlayer];
+  players[activePlayer].setScore(players[activePlayer].getScore() + current);
+  document.querySelector(`#score-${activePlayer}`).textContent = players[activePlayer].getScore();
   changePlayer();
 });
 
