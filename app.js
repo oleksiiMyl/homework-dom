@@ -15,10 +15,19 @@ let activePlayer = 0;
 let current = 0;
 let finishScore = 100;
 let playerNumber = 1;
+let winners = [];
 const diceElements = document.querySelectorAll('.dice');
 const scoreFieldWrap = document.querySelector('.field-wrap');
 const scoreField = document.querySelector('.score-field');
 const errorText = document.querySelector('.error-text');
+
+if (localStorage.getItem('winners') !== null) {
+  winners = JSON.parse(localStorage.getItem('winners'));
+}
+
+const findGamer = (arr, name) => arr.some(gamer => gamer.name === name);
+
+const getGamer = (arr, name) => arr.find(gamer => gamer.name === name);
 
 const getPlayerName = (title) => {
   const name = prompt(title, '');
@@ -32,9 +41,10 @@ const getPlayerName = (title) => {
 const playerName1 = getPlayerName('Введите имя первого игрока');
 const playerName2 = getPlayerName('Введите имя второго игрока');
 
-function Gamer(name, score) {
+function Gamer(name, score, winsNumber) {
   this.name = name;
   this.score = score;
+  this.winsNumber = winsNumber;
 }
 
 Gamer.prototype.getScore = function () {
@@ -49,12 +59,22 @@ Gamer.prototype.resetScore = function () {
   this.score = 0;
 };
 
-const player1 = new Gamer(playerName1, 0);
-const player2 = new Gamer(playerName2, 0);
+const createPlayer = (inputName) => {
+  if (findGamer(winners, inputName)) {
+    const gamer = getGamer(winners, inputName);
+    Object.setPrototypeOf(gamer, Gamer.prototype);
+    return gamer;
+  }
+  return new Gamer(inputName, 0, 0);
+};
+
+const player1 = createPlayer(playerName1);
+const player2 = createPlayer(playerName2);
 
 const players = [player1, player2];
 
 const initGame = () => {
+  console.log(players);
   scoreFieldWrap.style.display = "block";
   document.querySelector('#name-0').textContent = player1.name;
   document.querySelector('#name-1').textContent = player2.name;
@@ -80,6 +100,7 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
   diceElements[1].src = `dice-${dice2}.png`;
   diceElements[0].style.display = 'block';
   diceElements[1].style.display = 'block';
+  const playerName = players[activePlayer].name;
 
   if (dice1 === dice2 || dice1 === RESET_VALUE || dice2 === RESET_VALUE) {
     changePlayer();
@@ -89,7 +110,14 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
     document.getElementById('current-'+activePlayer).textContent = current;
 
     if (players[activePlayer].getScore() + current >= finishScore) {
-      alert(`Player ${players[activePlayer].name} won!!!`);
+      alert(`Player ${playerName} won!!!`);
+      players[activePlayer].winsNumber++;
+
+      if (!findGamer(winners, playerName) && playerName.indexOf('Player') === -1) {
+        winners.push(players[activePlayer]);
+      }
+
+      localStorage.setItem('winners', JSON.stringify(winners));
     }
   }
 });
@@ -131,4 +159,19 @@ document.querySelector('.btn-apply').addEventListener('click', function () {
     errorText.style.display = 'block';
     scoreField.classList.add('invalid');
   }
+});
+
+const showWinners = arr => {
+  let res = '';
+
+  arr.sort((a, b) => b.winsNumber - a.winsNumber);
+  arr.forEach(function (el) {
+    res += `${el.name} wins ${el.winsNumber} times\n`;
+  });
+
+  return res;
+};
+
+document.querySelector('.btn-show').addEventListener('click', function() {
+  alert(showWinners(winners));
 });
